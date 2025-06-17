@@ -1,44 +1,50 @@
-const axios = require("axios");
+const axios = require('axios');
 
 module.exports = function(RED) {
     function AktionCloudPresenceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        node.configNode = RED.nodes.getNode(config.aktionCloud);
+        node.aktionCloudConfig = RED.nodes.getNode(config.aktionCloud);
 
         node.on('input', async function(msg, send, done) {
-            const token = msg.token || config.token;
+            node.status({fill:"blue", shape:"dot", text:"Načítám přítomné..."});
+
+            const apiUrl = (node.aktionCloudConfig && node.aktionCloudConfig.apiUrl) || "https://cloud.aktion.cz/api";
+            const token = msg.token;
             if (!token) {
-                node.status({fill:"red", shape:"ring", text:"missing token"});
-                node.error("Token není k dispozici.", msg);
-                if (done) done("Token není k dispozici.");
+                node.status({fill:"red", shape:"ring", text:"Chybí token"});
+                done("Token není k dispozici.");
                 return;
             }
-            node.status({fill:"blue", shape:"dot", text:"Načítám přítomné"});
             try {
-                const apiUrl = node.configNode.apiUrl;
-                const { data: persons } = await axios.get(
+                const response = await axios.get(
                     `${apiUrl}/HwStructure/getAllPersonWithCurrentAccess`,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
+                const persons = response.data || [];
+
                 let posledni = null;
-                if (Array.isArray(persons) && persons.length > 0) {
-                    posledni = persons.reduce((a, b) =>
-                        (a.arrivalTime > b.arrivalTime ? a : b)
-                    );
+                if (persons.length > 0) {
+                    posledni = persons.reduce((a, b) => {
+                        if (a.arrivalTime && b.arrivalTime) {
+                            return new Date(a.arrivalTime) > new Date(b.arrivalTime) ? a : b;
+                        }
+                        return a;
+                    });
                 }
+
                 send([
-                    { payload: posledni ? `${posledni.firstName} ${posledni.lastName}` : null },
+                    { payload: posledni ? `${posledni.firstName || ""} ${posledni.lastName || ""}`.trim() : null },
                     { payload: posledni ? posledni.personId : null },
                     { payload: posledni ? posledni.login : null },
                     { payload: persons }
                 ]);
                 node.status({fill:"green", shape:"dot", text:"Přítomní načteni"});
-                if (done) done();
+                done();
             } catch (err) {
-                node.status({fill:"red", shape:"ring", text:"chyba API"});
-                node.error("Chyba při čtení přítomných: " + err.message, msg);
-                if (done) done(err);
+                node.status({fill:"red", shape:"ring", text:"Chyba načtení"});
+                send([ { payload: err.message }, null, null, null ]);
+                done(err);
             }
         });
     }
