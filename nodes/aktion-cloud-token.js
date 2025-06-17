@@ -1,29 +1,36 @@
-const axios = require("axios");
+const axios = require('axios');
 
 module.exports = function(RED) {
     function AktionCloudTokenNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        node.configNode = RED.nodes.getNode(config.aktionCloud);
-
-        node.status({fill:"grey", shape:"ring", text:"waiting for trigger"});
+        node.aktionCloudConfig = RED.nodes.getNode(config.aktionCloud);
 
         node.on('input', async function(msg, send, done) {
-            node.status({fill:"blue", shape:"dot", text:"getting token"});
+            node.status({fill:"blue", shape:"dot", text:"Přihlašuji..."});
+            if (!node.aktionCloudConfig || !node.aktionCloudConfig.email || !node.aktionCloudConfig.apiKey) {
+                node.status({fill:"red", shape:"ring", text:"Chybí připojení"});
+                done("Není zadána konfigurace připojení.");
+                return;
+            }
+            const apiUrl = node.aktionCloudConfig.apiUrl || "https://cloud.aktion.cz/api";
             try {
-                const { email, apiKey, apiUrl } = node.configNode;
-                const { data } = await axios.post(
-                    `${apiUrl}/login`,
-                    { email, apiKey }
-                );
-                msg.token = data.token;
-                node.status({fill:"green", shape:"dot", text:"token OK"});
-                send(msg);
-                if (done) done();
+                const response = await axios.post(`${apiUrl}/login`, {
+                    email: node.aktionCloudConfig.email,
+                    apiKey: node.aktionCloudConfig.apiKey
+                });
+                if (response.data && response.data.token) {
+                    msg.token = response.data.token;
+                    node.status({fill:"green", shape:"dot", text:"Token OK"});
+                    send(msg);
+                    done();
+                } else {
+                    node.status({fill:"red", shape:"ring", text:"Chyba tokenu"});
+                    done("Token nebyl vrácen.");
+                }
             } catch (err) {
-                node.status({fill:"red", shape:"ring", text:"token error"});
-                node.error("Chyba získání tokenu: " + err.message, msg);
-                if (done) done(err);
+                node.status({fill:"red", shape:"ring", text:"Chyba přihlášení"});
+                done(err);
             }
         });
     }
