@@ -1,6 +1,6 @@
 {
   "name": "node-red-aktion-cloud-api",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Node-RED modul pro integraci docházkového systému Aktion Cloud API",
   "dependencies": {
     "axios": "^1.7.2"
