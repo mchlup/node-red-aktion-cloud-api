@@ -3,14 +3,14 @@ const axios = require('axios');
 module.exports = function(RED) {
     const TOKEN_EXPIRY = 15000;
     const MAX_RETRIES = 3;
-    
+    const API_URL = "https://cloud.aktion.cz/api";
+
     function AktionCloudTokenNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         node.name = config.name;
         node.email = config.email;
         node.apiKey = config.apiKey;
-        node.apiUrl = config.apiUrl || "https://cloud.aktion.cz/api";
         node.debug = config.debug || false;
         node.tokenCache = null;
         node.tokenTimestamp = 0;
@@ -21,7 +21,7 @@ module.exports = function(RED) {
                 return node.tokenCache;
             }
             try {
-                const response = await axios.post(`${node.apiUrl}/login`, {
+                const response = await axios.post(`${API_URL}/login`, {
                     email: node.email,
                     apiKey: node.apiKey
                 }, {
@@ -65,4 +65,4 @@ module.exports = function(RED) {
     }
 
     RED.nodes.registerType("aktion-cloud-token", AktionCloudTokenNode);
-}
+};
