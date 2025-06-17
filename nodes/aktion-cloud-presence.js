@@ -1,63 +1,93 @@
 const axios = require('axios');
 
 module.exports = function(RED) {
+    const CACHE_TTL = 30000; // 30 seconds
+    const RATE_LIMIT_WINDOW = 60000; // 1 minute
+    const MAX_REQUESTS = 30; // max 30 requests per minute
+    
     function AktionCloudPresenceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         node.aktionCloudConfig = RED.nodes.getNode(config.aktionCloud);
+        node.presenceCache = null;
+        node.presenceTimestamp = 0;
+        node.requestCount = 0;
+        node.requestResetTime = Date.now();
+
+        function checkRateLimit() {
+            const now = Date.now();
+            if (now - node.requestResetTime >= RATE_LIMIT_WINDOW) {
+                node.requestCount = 0;
+                node.requestResetTime = now;
+            }
+            if (node.requestCount >= MAX_REQUESTS) {
+                throw new Error("Rate limit exceeded");
+            }
+            node.requestCount++;
+        }
+
+        async function getPresence(token) {
+            const now = Date.now();
+            
+            // Return cached presence if recent
+            if (node.presenceCache && (now - node.presenceTimestamp) < CACHE_TTL) {
+                return node.presenceCache;
+            }
+
+            checkRateLimit();
+
+            const apiUrl = node.aktionCloudConfig.apiUrl || "https://cloud.aktion.cz/api";
+            
+            const response = await axios.get(`${apiUrl}/presence`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 5000
+            });
+
+            if (response.data) {
+                node.presenceCache = response.data;
+                node.presenceTimestamp = now;
+                return response.data;
+            }
+            throw new Error("Invalid presence response");
+        }
 
         node.on('input', async function(msg, send, done) {
-            // Kontrola, zda je vybrána konfigurace připojení
             if (!node.aktionCloudConfig) {
                 node.status({fill: "red", shape: "ring", text: "Chybí připojení"});
                 return done("Není zadána konfigurace připojení.");
             }
-            node.status({fill: "blue", shape: "dot", text: "Načítám přítomné..."});
 
-            const apiUrl = (node.aktionCloudConfig && node.aktionCloudConfig.apiUrl) || "https://cloud.aktion.cz/api";
-            const token = msg.token;
-            if (!token) {
+            if (!msg.payload || !msg.payload.token) {
                 node.status({fill: "red", shape: "ring", text: "Chybí token"});
-                return done("Token není k dispozici.");
+                return done("Není k dispozici přihlašovací token.");
             }
+
             try {
-                const response = await axios.get(
-                    `${apiUrl}/HwStructure/getAllPersonWithCurrentAccess`,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                const persons = response.data || [];
-
-                let posledni = null;
-                if (persons.length > 0) {
-                    // Najít osobu s nejnovějším časem příchodu
-                    posledni = persons.reduce((a, b) => {
-                        if (a.arrivalTime && b.arrivalTime) {
-                            return new Date(a.arrivalTime) > new Date(b.arrivalTime) ? a : b;
-                        }
-                        return a;
-                    });
-                }
-
-                // Odeslat výstupy:
-                // 1) Jméno posledního přítomného
-                // 2) ID posledního přítomného
-                // 3) Login posledního přítomného
-                // 4) Celý seznam přítomných osob (JSON pole)
+                node.status({fill: "blue", shape: "dot", text: "Načítám přítomné..."});
+                const presence = await getPresence(msg.payload.token);
+                node.status({fill: "green", shape: "dot", text: `Načteno (${presence.length || 0} osob)`});
                 send([
-                    { payload: posledni ? `${(posledni.firstName || "")} ${(posledni.lastName || "")}`.trim() : null },
-                    { payload: posledni ? posledni.personId : null },
-                    { payload: posledni ? posledni.login : null },
-                    { payload: persons }
+                    { payload: presence },
+                    null,
+                    null,
+                    null
                 ]);
-                node.status({fill: "green", shape: "dot", text: "Přítomní načteni"});
                 done();
             } catch (err) {
-                node.status({fill: "red", shape: "ring", text: "Chyba načtení"});
-                // V případě chyby pošleme chybovou zprávu na první výstup, ostatní výstupy null
-                send([{ payload: err.message }, null, null, null]);
+                node.status({fill: "red", shape: "ring", text: "Chyba"});
+                send([
+                    { payload: err.message },
+                    null,
+                    null,
+                    null
+                ]);
                 done(err);
             }
         });
     }
+
     RED.nodes.registerType("aktion-cloud-presence", AktionCloudPresenceNode);
-};
+}
