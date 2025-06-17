@@ -6,11 +6,15 @@ RED.nodes.registerType('aktion-cloud-attendance', {
     outputs: 4,
     icon: 'font-awesome/fa-sign-in',
     defaults: {
-        name: { value:"" },
-        aktionCloud: { type: "aktion-cloud-config", required: true },
-        personId: { value:"", required: false },    // <-- nutné nastavit required: false!
-        direction: { value:"in", required:true },
-        type: { value:"" }
+        personId: { value:"", required: false },    // nutné nastavit required: false!
+        direction: { value:"in", required: true },
+        type: { value: "" },
+        apiUrl: { value: "https://cloud.aktion.cz/api" },
+        name: { value: "" }
+    },
+    credentials: {
+        email: { type: "text" },
+        apiKey: { type: "password" }
     },
     outputLabels: [
         "Stav výsledku",
@@ -23,9 +27,18 @@ RED.nodes.registerType('aktion-cloud-attendance', {
     }
 });
 </script>
+
 <div class="form-row">
-    <label for="node-input-aktionCloud"><i class="fa fa-cog"></i> Připojení</label>
-    <input type="node-config-input" id="node-input-aktionCloud" name="aktionCloud">
+    <label for="node-input-email">E-mail:</label>
+    <input type="text" id="node-input-email" name="email" autocomplete="off">
+</div>
+<div class="form-row">
+    <label for="node-input-apiKey">API klíč:</label>
+    <input type="password" id="node-input-apiKey" name="apiKey" autocomplete="new-password">
+</div>
+<div class="form-row">
+    <label for="node-input-apiUrl">API URL:</label>
+    <input type="text" id="node-input-apiUrl" name="apiUrl" value="https://cloud.aktion.cz/api">
 </div>
 <div class="form-row">
     <label for="node-input-personId">Uživatel (ID, login nebo e-mail):</label>
