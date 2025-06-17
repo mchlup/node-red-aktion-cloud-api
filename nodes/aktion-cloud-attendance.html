@@ -8,7 +8,7 @@ RED.nodes.registerType('aktion-cloud-attendance', {
     defaults: {
         name: { value:"" },
         aktionCloud: { type: "aktion-cloud-config", required: true },
-        personId: { value:"", required:true },
+        personId: { value:"", required:false },   // <-- změna required:false
         direction: { value:"in", required:true },
         type: { value:"" }
     },
