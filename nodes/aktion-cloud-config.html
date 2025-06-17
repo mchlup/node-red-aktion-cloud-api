@@ -2,29 +2,29 @@
 RED.nodes.registerType('aktion-cloud-config', {
     category: 'config',
     defaults: {
-        name: {value: ""}, 
-        apiUrl: {value: "https://api.aktion.cloud"} 
+        name: { value: "" },
+        apiUrl: { value: "https://cloud.aktion.cz/api" }
     },
     credentials: {
-        email: {type:"text"},
-        apiKey: {type:"password"}
-    }
+        email: { type: "text" },
+        apiKey: { type: "password" }
+    },
+    label: function() { return this.name || this.email || "Aktion Cloud API"; }
 });
 </script>
-
 <div class="form-row">
     <label for="node-config-input-name">Název:</label>
     <input type="text" id="node-config-input-name" name="name">
 </div>
 <div class="form-row">
     <label for="node-config-input-email">E-mail:</label>
-    <input type="text" id="node-config-input-email" name="email" credential="email">
+    <input type="text" id="node-config-input-email" name="email" autocomplete="off">
 </div>
 <div class="form-row">
     <label for="node-config-input-apiKey">API klíč:</label>
-    <input type="password" id="node-config-input-apiKey" name="apiKey" credential="apiKey">
+    <input type="password" id="node-config-input-apiKey" name="apiKey" autocomplete="new-password">
 </div>
 <div class="form-row">
     <label for="node-config-input-apiUrl">API URL:</label>
-    <input type="text" id="node-config-input-apiUrl" name="apiUrl">
+    <input type="text" id="node-config-input-apiUrl" name="apiUrl" value="https://cloud.aktion.cz/api">
 </div>
