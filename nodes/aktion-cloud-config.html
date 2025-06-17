@@ -1,18 +1,18 @@
 <script type="text/javascript">
-    RED.nodes.registerType('aktion-cloud-config', {
-        category: 'config',
-        defaults: {
-            name: { value: "" },
-            apiUrl: { value: "https://cloud.aktion.cz/api" }
-        },
-        credentials: {
-            email: { type: "text" },
-            apiKey: { type: "password" }
-        },
-        label: function() {
-            return this.name || this.email || "Aktion Cloud API";
-        }
-    });
+RED.nodes.registerType('aktion-cloud-config', {
+    category: 'config',
+    defaults: {
+        name: { value: "" },
+        apiUrl: { value: "https://cloud.aktion.cz/api" }
+    },
+    credentials: {
+        email: { type: "text" },
+        apiKey: { type: "password" }
+    },
+    label: function() {
+        return this.name || this.email || "Aktion Cloud API";
+    }
+});
 </script>
 
 <div class="form-row">
