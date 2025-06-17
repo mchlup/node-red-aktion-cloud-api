@@ -9,7 +9,6 @@ RED.nodes.registerType('aktion-cloud-token', {
         name: { value:"" },
         email: { value:"", required:true },
         apiKey: { value:"", required:true },
-        apiUrl: { value:"https://cloud.aktion.cz/api", required:true },
         debug: { value:false }
     },
     label: function() {
@@ -28,10 +27,6 @@ RED.nodes.registerType('aktion-cloud-token', {
 <div class="form-row">
     <label for="node-input-apiKey"><i class="fa fa-key"></i> API klíč</label>
     <input type="password" id="node-input-apiKey" placeholder="API klíč">
-</div>
-<div class="form-row">
-    <label for="node-input-apiUrl"><i class="fa fa-globe"></i> API URL</label>
-    <input type="text" id="node-input-apiUrl" value="https://cloud.aktion.cz/api">
 </div>
 <div class="form-row">
     <label for="node-input-debug"><i class="fa fa-bug"></i> Debug výstup</label>
