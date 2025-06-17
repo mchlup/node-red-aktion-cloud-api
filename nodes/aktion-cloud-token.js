@@ -1,17 +1,14 @@
-const axios = require('axios');
-
 module.exports = function(RED) {
-    const TOKEN_EXPIRY = 15000;
+    const axios = require('axios');
+    const TOKEN_EXPIRY = 15000;  // 15 sekund
     const MAX_RETRIES = 3;
-    const API_URL = "https://cloud.aktion.cz/api";
 
     function AktionCloudTokenNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        node.name = config.name;
-        node.email = config.email;
-        node.apiKey = config.apiKey;
-        node.debug = config.debug || false;
+        const email = node.credentials.email;
+        const apiKey = node.credentials.apiKey;
+        const apiUrl = config.apiUrl || "https://cloud.aktion.cz/api";
         node.tokenCache = null;
         node.tokenTimestamp = 0;
 
@@ -21,21 +18,19 @@ module.exports = function(RED) {
                 return node.tokenCache;
             }
             try {
-                const response = await axios.post(`${API_URL}/login`, {
-                    email: node.email,
-                    apiKey: node.apiKey
-                }, {
-                    timeout: 5000
-                });
+                const response = await axios.post(`${apiUrl}/login`, {
+                    email: email,
+                    apiKey: apiKey
+                }, { timeout: 5000 });
                 if (response.data && response.data.token) {
                     node.tokenCache = response.data.token;
                     node.tokenTimestamp = now;
-                    return response.data.token;
+                    return node.tokenCache;
                 }
                 throw new Error("Invalid token response");
             } catch (error) {
                 if (retryCount < MAX_RETRIES) {
-                    await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+                    await new Promise(res => setTimeout(res, 1000 * (retryCount + 1)));
                     return getToken(retryCount + 1);
                 }
                 throw error;
@@ -43,26 +38,21 @@ module.exports = function(RED) {
         }
 
         node.on('input', async function(msg, send, done) {
-            if (!node.email || !node.apiKey) {
-                node.status({fill:"red", shape:"ring", text:"Chybí e-mail nebo API klíč"});
-                done("Chybí e-mail nebo API klíč!");
-                return;
+            if (!email || !apiKey) {
+                node.status({ fill: "red", shape: "ring", text: "Chybí e-mail nebo API klíč" });
+                return done("Není zadán e-mail nebo API klíč.");
             }
-            node.status({fill:"blue", shape:"dot", text:"Přihlašuji..."});
+            node.status({ fill: "blue", shape: "dot", text: "Přihlašuji..." });
             try {
                 const token = await getToken();
-                node.status({fill:"green", shape:"dot", text:"Přihlášeno"});
-                send({ payload: { token } });
-                if (node.debug) {
-                    node.log("Token získán: " + token);
-                }
+                node.status({ fill: "green", shape: "dot", text: "Přihlášeno" });
+                send({ payload: { token: token } });
                 done();
             } catch (err) {
-                node.status({fill:"red", shape:"ring", text:"Chyba přihlášení"});
+                node.status({ fill: "red", shape: "ring", text: "Chyba přihlášení" });
                 done(err);
             }
         });
     }
-
     RED.nodes.registerType("aktion-cloud-token", AktionCloudTokenNode);
 };
