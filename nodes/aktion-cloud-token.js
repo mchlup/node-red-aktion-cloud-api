@@ -46,13 +46,18 @@ module.exports = function(RED) {
         }
 
         node.on('input', async function(msg, send, done) {
-            node.status({fill:"blue", shape:"dot", text:"Přihlašuji..."});
-            
-            if (!node.aktionCloudConfig || !node.aktionCloudConfig.email || !node.aktionCloudConfig.apiKey) {
-                node.status({fill:"red", shape:"ring", text:"Chybí připojení"});
-                done("Není zadána konfigurace připojení.");
+            if (!node.aktionCloudConfig) {
+                node.status({fill:"red", shape:"ring", text:"Chybí konfigurační node"});
+                done("Není vybrán konfigurační node připojení.");
                 return;
             }
+            if (!node.aktionCloudConfig.email || !node.aktionCloudConfig.apiKey) {
+                node.status({fill:"red", shape:"ring", text:"Chybí email nebo API klíč"});
+                done("V konfiguračním nodu není zadán email nebo API klíč.");
+                return;
+            }
+
+            node.status({fill:"blue", shape:"dot", text:"Přihlašuji..."});
 
             try {
                 const token = await getToken();
