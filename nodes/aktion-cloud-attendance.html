@@ -6,7 +6,7 @@ RED.nodes.registerType('aktion-cloud-attendance', {
     outputs: 4,
     icon: 'font-awesome/fa-sign-in',
     defaults: {
-        personId: { value:"", required: false },    // nutné nastavit required: false!
+        personId: { value:"", required: false },
         direction: { value:"in", required: true },
         type: { value: "" },
         apiUrl: { value: "https://cloud.aktion.cz/api" },
@@ -29,33 +29,33 @@ RED.nodes.registerType('aktion-cloud-attendance', {
 </script>
 
 <div class="form-row">
-    <label for="node-input-email">E-mail:</label>
-    <input type="text" id="node-input-email" name="email" autocomplete="off">
+    <label for="node-input-email"><i class="fa fa-envelope"></i> E-mail</label>
+    <input type="text" id="node-input-email" autocomplete="off">
 </div>
 <div class="form-row">
-    <label for="node-input-apiKey">API klíč:</label>
-    <input type="password" id="node-input-apiKey" name="apiKey" autocomplete="new-password">
+    <label for="node-input-apiKey"><i class="fa fa-key"></i> API klíč</label>
+    <input type="password" id="node-input-apiKey" autocomplete="new-password">
 </div>
 <div class="form-row">
-    <label for="node-input-apiUrl">API URL:</label>
-    <input type="text" id="node-input-apiUrl" name="apiUrl" value="https://cloud.aktion.cz/api">
+    <label for="node-input-apiUrl"><i class="fa fa-globe"></i> API URL</label>
+    <input type="text" id="node-input-apiUrl" value="https://cloud.aktion.cz/api">
 </div>
 <div class="form-row">
-    <label for="node-input-personId">Uživatel (ID, login nebo e-mail):</label>
-    <input type="text" id="node-input-personId" name="personId">
+    <label for="node-input-personId"><i class="fa fa-user"></i> Uživatel (ID, login nebo e-mail)</label>
+    <input type="text" id="node-input-personId">
 </div>
 <div class="form-row">
-    <label for="node-input-direction">Směr průchodu:</label>
-    <select id="node-input-direction" name="direction">
+    <label for="node-input-direction"><i class="fa fa-sign-in"></i> Směr průchodu</label>
+    <select id="node-input-direction">
         <option value="in">Příchod</option>
         <option value="out">Odchod</option>
     </select>
 </div>
 <div class="form-row">
-    <label for="node-input-type">Typ akce (volitelné):</label>
-    <input type="text" id="node-input-type" name="type">
+    <label for="node-input-type"><i class="fa fa-list"></i> Typ akce (volitelné)</label>
+    <input type="text" id="node-input-type">
 </div>
 <div class="form-row">
-    <label for="node-input-name">Název:</label>
-    <input type="text" id="node-input-name" name="name">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Název</label>
+    <input type="text" id="node-input-name">
 </div>
