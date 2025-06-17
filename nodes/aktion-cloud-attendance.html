@@ -4,28 +4,31 @@ RED.nodes.registerType('aktion-cloud-attendance', {
     color: '#fbbd5e',
     inputs: 1,
     outputs: 4,
-    icon: 'font-awesome/fa-sign-in', 
+    icon: 'font-awesome/fa-sign-in',
+    defaults: {
+        name: { value:"" },
+        aktionCloud: { type: "aktion-cloud-config", required: true },
+        personId: { value:"", required:true },
+        direction: { value:"in", required:true },
+        type: { value:"" }
+    },
+    outputLabels: [
+        "Stav výsledku",
+        "ID uživatele",
+        "Typ akce",
+        "Odpověď API (JSON)"
+    ],
     label: function() {
         return this.name || "Zápis docházky";
-    },
-    defaults: {
-        name: {value:""},
-        aktionCloud: {type: "aktion-cloud-config", required: true},
-        personId: {value:"", required:true},
-        direction: {value:"in", required:true},
-        type: {value:""}
-    },
-    outputLabels: [ "Stav výsledku", "ID uživatele", "Typ akce", "Odpověď API (JSON)" ]
+    }
 });
 </script>
-
-<!-- Formulářová pole konfigurace -->
 <div class="form-row">
     <label for="node-input-aktionCloud"><i class="fa fa-cog"></i> Připojení</label>
-    <input type="node-config-input" id="node-input-aktionCloud" name="aktionCloud" type="aktion-cloud-config">
+    <input type="node-config-input" id="node-input-aktionCloud" name="aktionCloud">
 </div>
 <div class="form-row">
-    <label for="node-input-personId">Uživatel (ID nebo login):</label>
+    <label for="node-input-personId">Uživatel (ID, login nebo e-mail):</label>
     <input type="text" id="node-input-personId" name="personId">
 </div>
 <div class="form-row">
@@ -36,7 +39,7 @@ RED.nodes.registerType('aktion-cloud-attendance', {
     </select>
 </div>
 <div class="form-row">
-    <label for="node-input-type">Typ akce (volitelně):</label>
+    <label for="node-input-type">Typ akce (volitelné):</label>
     <input type="text" id="node-input-type" name="type">
 </div>
 <div class="form-row">
