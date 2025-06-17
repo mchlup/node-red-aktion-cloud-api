@@ -1,0 +1,25 @@
+{
+  "name": "node-red-aktion-cloud-api",
+  "version": "0.1.0",
+  "description": "Node-RED modul pro integraci docházkového systému Aktion Cloud API",
+  "dependencies": {
+    "axios": "^1.7.2"
+  },
+  "keywords": [
+    "node-red",
+    "aktion",
+    "cloud",
+    "docházka",
+    "attendance"
+  ],
+  "node-red": {
+    "nodes": {
+      "aktion-cloud-config": "nodes/aktion-cloud-config.js",
+      "aktion-cloud-token": "nodes/aktion-cloud-token.js",
+      "aktion-cloud-presence": "nodes/aktion-cloud-presence.js",
+      "aktion-cloud-attendance": "nodes/aktion-cloud-attendance.js"
+    }
+  },
+  "author": "mchlup",
+  "license": "MIT"
+}
