@@ -1,0 +1,30 @@
+<script type="text/javascript">
+RED.nodes.registerType('aktion-cloud-config', {
+    category: 'config',
+    defaults: {
+        name: {value: ""}, 
+        apiUrl: {value: "https://api.aktion.cloud"} 
+    },
+    credentials: {
+        email: {type:"text"},
+        apiKey: {type:"password"}
+    }
+});
+</script>
+
+<div class="form-row">
+    <label for="node-config-input-name">Název:</label>
+    <input type="text" id="node-config-input-name" name="name">
+</div>
+<div class="form-row">
+    <label for="node-config-input-email">E-mail:</label>
+    <input type="text" id="node-config-input-email" name="email" credential="email">
+</div>
+<div class="form-row">
+    <label for="node-config-input-apiKey">API klíč:</label>
+    <input type="password" id="node-config-input-apiKey" name="apiKey" credential="apiKey">
+</div>
+<div class="form-row">
+    <label for="node-config-input-apiUrl">API URL:</label>
+    <input type="text" id="node-config-input-apiUrl" name="apiUrl">
+</div>
